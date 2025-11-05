@@ -1,0 +1,7 @@
+{
+  "name": "Kirana Tracker",
+  "description": "An AI-powered inventory management, billing, and forecasting application for Kirana store owners. Snap product pictures to auto-populate details, track stock, manage sales, and get demand forecasts.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
