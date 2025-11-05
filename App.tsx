@@ -26,7 +26,7 @@ const App: React.FC = () => {
   const lowStockItems = useMemo(() => inventory.filter(item => item.quantity <= 5), [inventory]);
   const expiringSoonItems = useMemo(() => {
     const today = new Date();
-    const thirtyDaysFromNow = new Date(today.setDate(today.getDate() + 30));
+    const thirtyDaysFromNow = new Date(new Date().setDate(today.getDate() + 30));
     return inventory.filter(item => {
         try {
             const expiryDate = new Date(item.expiryDate);
@@ -38,46 +38,61 @@ const App: React.FC = () => {
   }, [inventory]);
 
   const handleAddItem = (newItem: Omit<InventoryItem, 'id' | 'dateAdded'>) => {
-    const existingItemIndex = inventory.findIndex(item => item.brand === newItem.brand && item.size === newItem.size);
+    const existingItemIndex = inventory.findIndex(item => item.brand.toLowerCase() === newItem.brand.toLowerCase() && item.size === newItem.size);
+    
     if (existingItemIndex !== -1) {
+      // Item exists, update it and move to top of the list.
       const updatedInventory = [...inventory];
-      updatedInventory[existingItemIndex].quantity += newItem.quantity;
-      updatedInventory[existingItemIndex].expiryDate = newItem.expiryDate;
-      updatedInventory[existingItemIndex].mrp = newItem.mrp;
-      setInventory(updatedInventory);
+      const existingItem = updatedInventory.splice(existingItemIndex, 1)[0];
+      
+      const updatedItem: InventoryItem = {
+        ...existingItem,
+        quantity: existingItem.quantity + newItem.quantity,
+        expiryDate: newItem.expiryDate,
+        mrp: newItem.mrp,
+        imageUrl: newItem.imageUrl || existingItem.imageUrl, // Preserve old image if new one is not provided
+      };
+      
+      setInventory([updatedItem, ...updatedInventory]);
     } else {
+      // New item, add to the top of the list.
       const newInventoryItem: InventoryItem = {
         ...newItem,
         id: Date.now(),
         dateAdded: new Date().toISOString().split('T')[0],
+        imageUrl: newItem.imageUrl || `https://picsum.photos/seed/${newItem.brand}/200`, // Placeholder
       };
-      setInventory(prev => [...prev, newInventoryItem]);
+      setInventory(prev => [newInventoryItem, ...prev]);
     }
     setIsModalOpen(false);
     setCurrentView('inventory');
   };
 
   const handleCreateSale = (itemsSold: { id: number; quantity: number }[]) => {
-    const newSale: Sale = {
-      id: Date.now(),
-      date: new Date().toISOString(),
-      items: [],
-      total: 0,
-    };
-    
+    const saleItems: InventoryItem[] = [];
     let totalSaleAmount = 0;
+
     const updatedInventory = inventory.map(inventoryItem => {
-      const itemInSale = itemsSold.find(sold => sold.id === inventoryItem.id);
-      if (itemInSale) {
-        inventoryItem.quantity -= itemInSale.quantity;
-        const saleItem = { ...inventoryItem, quantity: itemInSale.quantity };
-        newSale.items.push(saleItem);
-        totalSaleAmount += saleItem.mrp * saleItem.quantity;
+      const itemSold = itemsSold.find(sold => sold.id === inventoryItem.id);
+      if (itemSold) {
+        // Create a record for the sale with the sold quantity
+        const saleItemRecord = { ...inventoryItem, quantity: itemSold.quantity };
+        saleItems.push(saleItemRecord);
+        totalSaleAmount += saleItemRecord.mrp * saleItemRecord.quantity;
+        
+        // Return the updated inventory item with reduced stock
+        return { ...inventoryItem, quantity: inventoryItem.quantity - itemSold.quantity };
       }
       return inventoryItem;
     });
+    
+    const newSale: Sale = {
+      id: Date.now(),
+      date: new Date().toISOString(),
+      items: saleItems,
+      total: totalSaleAmount,
+    };
 
-    newSale.total = totalSaleAmount;
     setInventory(updatedInventory);
     setSales(prev => [newSale, ...prev]);
     setCurrentView('dashboard');

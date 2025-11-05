@@ -43,7 +43,13 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onAddItem 
     if (file) {
       setIsLoading(true);
       setError(null);
-      setImagePreview(URL.createObjectURL(file));
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+          setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+
       try {
         const extractedDetails = await extractProductDetailsFromImage(file);
         setDetails(extractedDetails);
@@ -59,7 +65,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ isOpen, onClose, onAddItem 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (details.brand && details.mrp && details.expiryDate && details.size && quantity > 0) {
-      onAddItem({ ...details, quantity });
+      onAddItem({ ...details, quantity, imageUrl: imagePreview ?? undefined });
       handleClose();
     } else {
       setError('Please fill all fields before submitting.');
