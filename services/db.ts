@@ -1,4 +1,4 @@
-import Dexie, { Table } from 'https://aistudiocdn.com/dexie@^4.0.0';
+import Dexie, { Table } from 'dexie';
 import { InventoryItem, Sale, User, UserRole } from '../types';
 
 // Define the database class and its schema

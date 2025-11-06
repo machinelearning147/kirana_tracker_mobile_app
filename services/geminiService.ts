@@ -1,4 +1,5 @@
-import { GoogleGenAI, Type } from "https://aistudiocdn.com/@google/genai@^1.28.0";
+
+import { GoogleGenAI, Type } from "@google/genai";
 import { InventoryItem, Sale } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY as string });

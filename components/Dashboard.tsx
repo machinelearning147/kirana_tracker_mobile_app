@@ -1,6 +1,6 @@
 import React from 'react';
 import { InventoryItem, Sale, User, UserRole } from '../types';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'https://aistudiocdn.com/recharts@^3.3.0';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface DashboardProps {
   inventory: InventoryItem[];
