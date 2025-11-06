@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
+import { useLiveQuery } from 'https://aistudiocdn.com/dexie-react-hooks@^1.1.7';
 import { db } from './services/db';
 import { InventoryItem, Sale, User, UserRole } from './types';
 import Dashboard from './components/Dashboard';
