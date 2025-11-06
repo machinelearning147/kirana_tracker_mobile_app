@@ -1,6 +1,6 @@
-
 export interface InventoryItem {
-  id: number;
+  id?: number;
+  userId: string; // To associate item with a user/store
   brand: string;
   mrp: number;
   expiryDate: string;
@@ -11,9 +11,10 @@ export interface InventoryItem {
 }
 
 export interface Sale {
-  id: number;
+  id?: number;
+  userId: string; // To associate sale with a user/store
   date: string;
-  items: InventoryItem[];
+  items: Omit<InventoryItem, 'userId'>[]; // Items in a sale don't need the userId again
   total: number;
 }
 
@@ -28,4 +29,11 @@ export interface ProductDetails {
     mrp: number;
     expiryDate: string; // YYYY-MM-DD
     size: string;
+}
+
+export interface User {
+    id: string;
+    email: string;
+    storeName?: string;
+    role?: UserRole;
 }

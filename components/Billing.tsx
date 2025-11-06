@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { InventoryItem } from '../types';
 
@@ -29,6 +28,23 @@ const Billing: React.FC<BillingProps> = ({ inventory, createSale }) => {
       setCart(newCart);
     }
   };
+
+  const handleCartQuantityChange = (itemId: number, value: string) => {
+    const itemInStock = inventory.find(i => i.id === itemId);
+    if (!itemInStock) return;
+
+    const newQuantity = parseInt(value, 10);
+    const newCart = new Map(cart);
+
+    if (isNaN(newQuantity) || newQuantity <= 0) {
+      newCart.delete(itemId);
+    } else {
+      const quantityInCart = Math.min(newQuantity, itemInStock.quantity);
+      newCart.set(itemId, quantityInCart);
+    }
+    setCart(newCart);
+  };
+
 
   const handleCheckout = () => {
     if (cart.size > 0) {
@@ -85,7 +101,15 @@ const Billing: React.FC<BillingProps> = ({ inventory, createSale }) => {
                 </div>
                 <div className="flex items-center space-x-2">
                   <button onClick={() => removeFromCart(id)} className="p-1 rounded-full bg-red-100 text-red-700 hover:bg-red-200 text-xs">-</button>
-                  <span className="text-sm font-medium w-5 text-center">{quantity}</span>
+                   <input
+                        type="number"
+                        value={quantity}
+                        onChange={(e) => handleCartQuantityChange(item.id, e.target.value)}
+                        className="w-12 text-center border border-gray-300 rounded-md shadow-sm p-1 text-sm"
+                        min="0"
+                        max={item.quantity}
+                        aria-label={`Quantity for ${item.brand} in cart`}
+                    />
                   <button onClick={() => addToCart(item)} className="p-1 rounded-full bg-green-100 text-green-700 hover:bg-green-200 text-xs">+</button>
                 </div>
                 <p className="text-sm font-semibold w-16 text-right">₹{(item.mrp * quantity).toFixed(2)}</p>
